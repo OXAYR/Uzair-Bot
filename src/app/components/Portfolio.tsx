@@ -6,6 +6,7 @@ import Header from "./Header";
 import HeroSection from "./HeroSection";
 import ChatInterface from "./ChatInterface";
 import SkillsSection from "./SkillsSection";
+import { generateResponse } from "../lib/ai";
 
 interface Message {
   id: number;
@@ -62,28 +63,39 @@ const Portfolio: React.FC = () => {
     return () => clearInterval(timer);
   }, [introText]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
-    const newMessage: Message = {
+    // Add user message
+    const userMessage: Message = {
       id: messages.length + 1,
       type: "user",
       content: inputValue,
     };
-
-    setMessages((prev) => [...prev, newMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
 
-    // Simulate bot response
-    setTimeout(() => {
-      const botResponse: Message = {
+    try {
+      // Get AI response
+      const aiResponse = await generateResponse(inputValue);
+
+      // Add AI response
+      const botMessage: Message = {
+        id: messages.length + 2,
+        type: "bot",
+        content: aiResponse,
+      };
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (error) {
+      console.error("Error getting AI response:", error);
+      const errorMessage: Message = {
         id: messages.length + 2,
         type: "bot",
         content:
-          "Thanks for your question! I'm currently being configured with Uzair's data. Once integrated, I'll provide detailed answers about his experience, projects, and skills.",
+          "I apologize, but I'm having trouble processing your request right now. Please try again later.",
       };
-      setMessages((prev) => [...prev, botResponse]);
-    }, 1000);
+      setMessages((prev) => [...prev, errorMessage]);
+    }
   };
 
   // Optional: input change handler with types
