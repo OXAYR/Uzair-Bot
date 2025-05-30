@@ -139,7 +139,6 @@ export async function generateResponse(query: string): Promise<string> {
 
     Remember: You are representing ${portfolioData.name} professionally.`;
 
-    console.log("Making request to Cohere API...");
     const response = await axios.post(
       "https://api.cohere.ai/v1/chat",
       {
