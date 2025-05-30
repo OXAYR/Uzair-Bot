@@ -20,6 +20,7 @@ export interface ChatInterfaceProps {
   setInputValue: React.Dispatch<React.SetStateAction<string>>;
   onSendMessage: () => void;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  className?: string;
 }
 
 // For HeroSection props

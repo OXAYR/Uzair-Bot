@@ -110,7 +110,7 @@ const SkillsSection: React.FC = () => {
                     key={index}
                     onClick={() => setActiveCategory(index)}
                     aria-pressed={activeCategory === index}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 ${
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
                       activeCategory === index
                         ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
                         : "text-gray-400 hover:text-gray-300 hover:bg-gray-800/50"
