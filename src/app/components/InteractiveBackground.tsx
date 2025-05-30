@@ -1,210 +1,214 @@
 /** @format */
 "use client";
 
-import React, { useState, useEffect, MouseEvent } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { MousePosition, InteractiveBackgroundProps } from "../types/types";
 
-interface Particle {
+interface TechElement {
   id: number;
+  type: "code" | "terminal" | "git" | "database";
+  content: string;
   x: number;
   y: number;
-  size: number;
+  rotation: number;
   speed: number;
   opacity: number;
-}
-
-interface Click {
-  id: number;
-  x: number;
-  y: number;
 }
 
 const InteractiveBackground: React.FC<InteractiveBackgroundProps> = ({
   mousePosition,
 }) => {
-  const [clicks, setClicks] = useState<Click[]>([]);
-  const [particles, setParticles] = useState<Particle[]>([]);
+  const [techElements, setTechElements] = useState<TechElement[]>([]);
+  const [isActive, setIsActive] = useState(true);
 
+  // Tech-themed content
+  const techContent = useMemo(
+    () => ({
+      code: [
+        "const app = () => {",
+        "function init() {",
+        "async function fetch() {",
+        "class Component {",
+        "import { useState }",
+        "export default",
+        "try { await",
+        "if (condition) {",
+        "return <div>",
+        "useEffect(() => {",
+      ],
+      terminal: [
+        "npm install",
+        "git commit -m",
+        "docker build",
+        "kubectl apply",
+        "npm run dev",
+        "yarn start",
+        "git push",
+        "docker-compose up",
+        "npm test",
+        "git pull",
+      ],
+      git: [
+        "feature/",
+        "bugfix/",
+        "main",
+        "develop",
+        "release/",
+        "hotfix/",
+        "merge",
+        "rebase",
+        "stash",
+        "cherry-pick",
+      ],
+      database: [
+        "SELECT * FROM",
+        "CREATE TABLE",
+        "INSERT INTO",
+        "UPDATE SET",
+        "DELETE FROM",
+        "JOIN ON",
+        "GROUP BY",
+        "ORDER BY",
+        "WHERE",
+        "HAVING",
+      ],
+    }),
+    []
+  );
+
+  // Initialize tech elements
   useEffect(() => {
-    // Generate floating particles
-    const newParticles: Particle[] = Array.from({ length: 20 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 3 + 1,
-      speed: Math.random() * 0.5 + 0.1,
-      opacity: Math.random() * 0.5 + 0.1,
-    }));
-    setParticles(newParticles);
+    if (!isActive) return;
 
-    // Animate particles
-    const animateParticles = () => {
-      setParticles((prev) =>
-        prev.map((particle) => ({
-          ...particle,
-          y: particle.y > 100 ? -5 : particle.y + particle.speed,
-        }))
-      );
+    const createTechElement = (): TechElement => {
+      const types: ("code" | "terminal" | "git" | "database")[] = [
+        "code",
+        "terminal",
+        "git",
+        "database",
+      ];
+      const type = types[Math.floor(Math.random() * types.length)];
+      const content =
+        techContent[type][Math.floor(Math.random() * techContent[type].length)];
+
+      return {
+        id: Date.now() + Math.random(),
+        type,
+        content,
+        x: Math.random() * 100,
+        y: -10,
+        rotation: Math.random() * 360,
+        speed: Math.random() * 0.2 + 0.1,
+        opacity: Math.random() * 0.3 + 0.1,
+      };
     };
 
-    const interval = setInterval(animateParticles, 50);
+    // Create initial elements
+    const initialElements = Array.from({ length: 15 }, createTechElement);
+    setTechElements(initialElements);
+
+    // Animation interval
+    const interval = setInterval(() => {
+      setTechElements((prev) => {
+        // Remove elements that have moved off screen
+        const filtered = prev.filter((el) => el.y < 110);
+
+        // Add new elements if needed
+        const newElements =
+          filtered.length < 15 ? [...filtered, createTechElement()] : filtered;
+
+        // Update positions
+        return newElements.map((el) => ({
+          ...el,
+          y: el.y + el.speed,
+          rotation: el.rotation + 0.1,
+        }));
+      });
+    }, 50);
+
     return () => clearInterval(interval);
-  }, []);
+  }, [isActive, techContent]);
 
-  const handleClick = (e: MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-
-    const newClick: Click = {
-      id: Date.now(),
-      x,
-      y,
+  // Get element styling based on type
+  const getElementStyle = (element: TechElement) => {
+    const baseStyle = {
+      left: `${element.x}%`,
+      top: `${element.y}%`,
+      transform: `rotate(${element.rotation}deg)`,
+      opacity: element.opacity,
     };
 
-    setClicks((prev) => [...prev, newClick]);
-
-    setTimeout(() => {
-      setClicks((prev) => prev.filter((click) => click.id !== newClick.id));
-    }, 1000);
+    switch (element.type) {
+      case "code":
+        return {
+          ...baseStyle,
+          color: "rgba(59, 130, 246, 0.5)", // blue
+          fontFamily: "monospace",
+        };
+      case "terminal":
+        return {
+          ...baseStyle,
+          color: "rgba(16, 185, 129, 0.5)", // green
+          fontFamily: "monospace",
+        };
+      case "git":
+        return {
+          ...baseStyle,
+          color: "rgba(245, 158, 11, 0.5)", // orange
+          fontFamily: "monospace",
+        };
+      case "database":
+        return {
+          ...baseStyle,
+          color: "rgba(139, 92, 246, 0.5)", // purple
+          fontFamily: "monospace",
+        };
+    }
   };
 
   return (
-    <div className="fixed inset-0 -z-10 cursor-crosshair" onClick={handleClick}>
+    <div className="fixed inset-0 -z-10 overflow-hidden">
       {/* Base gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-black" />
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-black opacity-90" />
 
-      {/* Spotlight */}
+      {/* Tech grid */}
       <div
-        className="absolute inset-0 opacity-30 transition-opacity duration-300"
+        className="absolute inset-0 opacity-[0.03]"
         style={{
-          background: `radial-gradient(800px circle at ${mousePosition.x}% ${mousePosition.y}%, 
-            rgba(59, 130, 246, 0.2) 0%, 
-            rgba(147, 51, 234, 0.15) 25%, 
-            rgba(16, 185, 129, 0.1) 50%, 
-            transparent 70%)`,
+          backgroundImage: `
+            linear-gradient(rgba(59, 130, 246, 0.3) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(59, 130, 246, 0.3) 1px, transparent 1px)
+          `,
+          backgroundSize: "30px 30px",
         }}
       />
 
-      {/* Grid */}
-      <div
-        className="absolute inset-0 opacity-[0.03] transition-all duration-500"
-        style={{
-          backgroundImage: `linear-gradient(rgba(59, 130, 246, ${
-            0.3 + (mousePosition.x / 100) * 0.2
-          }) 1px, transparent 1px),
-                           linear-gradient(90deg, rgba(59, 130, 246, ${
-                             0.3 + (mousePosition.y / 100) * 0.2
-                           }) 1px, transparent 1px)`,
-          backgroundSize: `${20 + (mousePosition.x / 100) * 20}px ${
-            20 + (mousePosition.y / 100) * 20
-          }px`,
-          transform: `translate(${(mousePosition.x - 50) * 0.1}px, ${
-            (mousePosition.y - 50) * 0.1
-          }px)`,
-        }}
-      />
+      {/* Tech elements */}
+      {isActive &&
+        techElements.map((element) => (
+          <div
+            key={element.id}
+            className="absolute text-sm font-mono whitespace-nowrap pointer-events-none select-none"
+            style={getElementStyle(element)}
+          >
+            {element.content}
+          </div>
+        ))}
 
-      {/* Particles */}
-      {particles.map((particle) => (
-        <div
-          key={particle.id}
-          className="absolute w-1 h-1 bg-blue-400/30 rounded-full animate-pulse"
-          style={{
-            left: `${particle.x}%`,
-            top: `${particle.y}%`,
-            transform: `scale(${particle.size})`,
-            opacity: particle.opacity,
-            animation: `float ${3 + particle.speed}s ease-in-out infinite`,
-          }}
-        />
-      ))}
+      {/* Subtle gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-gray-900/50 via-transparent to-transparent" />
 
-      {/* Ripple Effects */}
-      {clicks.map((click) => (
-        <div
-          key={click.id}
-          className="absolute pointer-events-none"
-          style={{ left: `${click.x}%`, top: `${click.y}%` }}
-        >
-          <div className="w-4 h-4 border-2 border-blue-400/60 rounded-full animate-ping transform -translate-x-1/2 -translate-y-1/2" />
-          <div className="w-8 h-8 border border-purple-400/40 rounded-full animate-ping transform -translate-x-1/2 -translate-y-1/2 animation-delay-150" />
-        </div>
-      ))}
-
-      {/* Code Snippets */}
-      <FloatingCode mousePosition={mousePosition} />
-
-      {/* Custom Animation */}
-      <style jsx>{`
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0px) rotate(0deg);
-          }
-          50% {
-            transform: translateY(-10px) rotate(5deg);
-          }
-        }
-        .animation-delay-150 {
-          animation-delay: 150ms;
-        }
-      `}</style>
+      {/* Toggle button */}
+      <button
+        onClick={() => setIsActive(!isActive)}
+        className="absolute bottom-4 right-4 px-3 py-1.5 text-xs text-gray-400 
+          bg-gray-800/50 hover:bg-gray-800/70 rounded-md transition-colors
+          border border-gray-700/50"
+      >
+        {isActive ? "Pause Animation" : "Resume Animation"}
+      </button>
     </div>
   );
 };
-
-const FloatingCode = ({ mousePosition }: { mousePosition: MousePosition }) => (
-  <>
-    <div
-      className="absolute top-32 left-16 opacity-60 transition-all duration-500"
-      style={{
-        transform: `translate(${(mousePosition.x - 50) * 0.2}px, ${
-          (mousePosition.y - 50) * 0.1
-        }px) rotate(${12 + (mousePosition.x - 50) * 0.1}deg)`,
-      }}
-    >
-      <div className="text-blue-400/80 font-mono text-sm hover:text-blue-300 transition-colors">
-        {"<div>"}
-      </div>
-    </div>
-    <div
-      className="absolute top-64 right-24 opacity-60 transition-all duration-500"
-      style={{
-        transform: `translate(${(mousePosition.x - 50) * -0.15}px, ${
-          (mousePosition.y - 50) * 0.2
-        }px) rotate(${-12 + (mousePosition.x - 50) * -0.1}deg)`,
-      }}
-    >
-      <div className="text-purple-400/80 font-mono text-sm hover:text-purple-300 transition-colors">
-        {"{ }"}
-      </div>
-    </div>
-    <div
-      className="absolute bottom-48 left-32 opacity-60 transition-all duration-500"
-      style={{
-        transform: `translate(${(mousePosition.x - 50) * 0.1}px, ${
-          (mousePosition.y - 50) * -0.15
-        }px) rotate(${45 + (mousePosition.x - 50) * 0.05}deg)`,
-      }}
-    >
-      <div className="text-emerald-400/80 font-mono text-sm hover:text-emerald-300 transition-colors">
-        {"[]"}
-      </div>
-    </div>
-    <div
-      className="absolute top-1/2 right-1/4 opacity-60 transition-all duration-500"
-      style={{
-        transform: `translate(${(mousePosition.x - 50) * -0.1}px, ${
-          (mousePosition.y - 50) * 0.1
-        }px) rotate(${(mousePosition.x - 50) * 0.1}deg)`,
-      }}
-    >
-      <div className="text-cyan-400/80 font-mono text-sm hover:text-cyan-300 transition-colors">
-        {"( )"}
-      </div>
-    </div>
-  </>
-);
 
 export default InteractiveBackground;

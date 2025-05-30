@@ -27,11 +27,11 @@ const skillCategories: SkillCategory[] = [
     icon: <Code2 size={18} />,
     description: "Building responsive and interactive user interfaces",
     skills: [
-      { name: "React", level: 95, experience: "5 years" },
-      { name: "Next.js", level: 90, experience: "3 years" },
-      { name: "TypeScript", level: 85, experience: "4 years" },
+      { name: "React", level: 80, experience: "2 years" },
+      { name: "Next.js", level: 83, experience: "2 years" },
+      { name: "TypeScript", level: 75, experience: "1 year" },
+      { name: "Vue.js", level: 90, experience: "3 years" },
       { name: "Tailwind CSS", level: 92, experience: "3 years" },
-      { name: "Framer Motion", level: 80, experience: "2 years" },
     ],
   },
   {
@@ -40,11 +40,19 @@ const skillCategories: SkillCategory[] = [
     icon: <Layers size={18} />,
     description: "Cross-platform mobile applications",
     skills: [
-      { name: "React Native", level: 88, experience: "4 years" },
-      { name: "Expo", level: 85, experience: "3 years" },
-      { name: "Native Base", level: 80, experience: "2 years" },
+      { name: "React Native", level: 68, experience: "1 year" },
+      {
+        name: "React Native Package Maintenance & Patching",
+        level: 65,
+        experience: "1 year",
+      },
+      {
+        name: "Native Stripe Payment Integration",
+        level: 60,
+        experience: "1 year",
+      },
       { name: "Redux Toolkit", level: 87, experience: "3 years" },
-      { name: "React Navigation", level: 90, experience: "4 years" },
+      { name: "React Navigation", level: 78, experience: "4 years" },
     ],
   },
   {
@@ -53,11 +61,11 @@ const skillCategories: SkillCategory[] = [
     icon: <Terminal size={18} />,
     description: "Server-side development and data management",
     skills: [
-      { name: "Node.js", level: 90, experience: "5 years" },
-      { name: "Express.js", level: 88, experience: "4 years" },
-      { name: "PostgreSQL", level: 85, experience: "3 years" },
-      { name: "MongoDB", level: 82, experience: "3 years" },
-      { name: "GraphQL", level: 78, experience: "2 years" },
+      { name: "Node.js", level: 90, experience: "1.5 year" },
+      { name: "Express.js", level: 88, experience: "1.5 year" },
+      { name: "JWT Authentication", level: 85, experience: "1 year" },
+      { name: "MongoDB", level: 82, experience: "1 year" },
+      { name: "Rest api", level: 85, experience: "2 years" },
     ],
   },
 ];
@@ -167,7 +175,7 @@ const SkillsSection: React.FC = () => {
           <CodeBlock>
             <div className="text-emerald-400">$ whoami</div>
             <div className="text-gray-400 mt-2 leading-relaxed">
-              Full-stack developer with 5+ years of experience building scalable
+              Full-stack developer with 2+ years of experience building scalable
               applications.
               <br />
               <span className="text-blue-400">
@@ -187,7 +195,7 @@ const SkillsSection: React.FC = () => {
               </div>
               <div className="ml-2">
                 <span className="text-orange-400">"experience"</span>:{" "}
-                <span className="text-green-400">"5+ years"</span>,
+                <span className="text-green-400">"2+ years"</span>,
               </div>
               <div className="ml-2">
                 <span className="text-orange-400">"focus"</span>:{" "}

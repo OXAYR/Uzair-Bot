@@ -1,6 +1,6 @@
 /** @format */
 "use client";
-import React, { useState, useEffect, ChangeEvent } from "react";
+import React, { useState, useEffect, ChangeEvent, useCallback } from "react";
 import InteractiveBackground from "./InteractiveBackground";
 import Header from "./Header";
 import HeroSection from "./HeroSection";
@@ -33,18 +33,18 @@ const Portfolio: React.FC = () => {
   const introText: string =
     "Hi! I'm Uzair's AI assistant. Ask me anything about his experience, projects, or skills.";
 
-  // Mouse tracking
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 100,
-        y: (e.clientY / window.innerHeight) * 100,
-      });
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+  // Instant mouse tracking
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    setMousePosition({
+      x: (e.clientX / window.innerWidth) * 100,
+      y: (e.clientY / window.innerHeight) * 100,
+    });
   }, []);
+
+  useEffect(() => {
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [handleMouseMove]);
 
   // Typewriter effect
   useEffect(() => {
@@ -92,18 +92,20 @@ const Portfolio: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white relative">
+    <div className="min-h-screen relative">
       <InteractiveBackground mousePosition={mousePosition} />
-      <Header />
-      <HeroSection displayText={displayText} isTyping={isTyping} />
-      <ChatInterface
-        messages={messages}
-        inputValue={inputValue}
-        setInputValue={setInputValue}
-        onSendMessage={handleSendMessage}
-        onInputChange={handleInputChange} // Pass if your ChatInterface uses it
-      />
-      <SkillsSection />
+      <div className="relative z-10">
+        <Header />
+        <HeroSection displayText={displayText} isTyping={isTyping} />
+        <ChatInterface
+          messages={messages}
+          inputValue={inputValue}
+          setInputValue={setInputValue}
+          onSendMessage={handleSendMessage}
+          onInputChange={handleInputChange}
+        />
+        <SkillsSection />
+      </div>
     </div>
   );
 };
